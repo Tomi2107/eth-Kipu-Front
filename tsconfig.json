@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // Compatibilidad con las características modernas necesarias para ethers
+    "module": "ESNext", // Compatible con módulos modernos
+    "jsx": "react-jsx", // Usa el nuevo transformador de JSX para React
+    "strict": true, // Verificación estricta de tipos
+    "esModuleInterop": true, // Habilita la interoperabilidad con CommonJS
+    "skipLibCheck": true, // Evita problemas de tipo en bibliotecas externas
+    "forceConsistentCasingInFileNames": true, // Enforce consistent file name casing
+    "moduleResolution": "node", // Resolución estilo Node.js
+    "resolveJsonModule": true, // Importación de archivos JSON como módulos
+    "baseUrl": ".", // Establece la base para rutas relativas
+    "typeRoots": ["node_modules/@types", "./src/types"], // Busca tipos personalizados y de librerías
+    "paths": {
+      "*": ["node_modules/*", "src/types/*"] // Resolución de rutas
+    },
+    "types": ["node", "react", "react-dom"], // Incluye tipos necesarios
+    "allowJs": true, // Permitir la mezcla de archivos JavaScript y TypeScript
+    "outDir": "./build", // Define una salida para los archivos compilados
+    "sourceMap": true // Genera mapas de fuente para depuración
+  },
+  "include": ["src/**/*", "global.d.ts"], // Incluye todos los archivos dentro de `src`
+  "exclude": [
+    "node_modules", // Excluye dependencias
+    "build" // Excluye el directorio de compilación
+  ]
+}
+

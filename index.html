@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es_AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleDEX Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./src/css/index.css">
+</head>
+<body>
+    <div>
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Front SimpleDEX</h1>
+        <div class="text-center">
+            <button id="connectWallet" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">Conectar wallet</button>
+            <button id="disconnectWallet" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition mt-4" style="display:none;">Desconectar</button>
+        </div>
+        <p id="status" class="text-center text-gray-600 mt-4">Estado: Desconectado</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/lib.commonjs/index.min.js"></script>
+    <script src="./js/interaction.cjs" type="module"></script>
+</body>
+</html>
+
