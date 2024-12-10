@@ -1,23 +1,221 @@
 <!DOCTYPE html>
-<html lang="es_AR">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimpleDEX Frontend</title>
+    <title>Front SimpleDEx</title>
+    <link rel="stylesheet" href="./styles.css" type="text/html">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./src/css/index.css">
 </head>
-<body>
-    <div>
-        <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Front SimpleDEX</h1>
-        <div class="text-center">
-            <button id="connectWallet" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">Conectar wallet</button>
-            <button id="disconnectWallet" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition mt-4" style="display:none;">Desconectar</button>
+<body class="bg-gray-100 font-sans">
+<div>
+  <div class="container mx-auto p-6">
+    <div class="container">  
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">SimpleDEX</h1>
+  
+      <!-- Wallet Connection -->
+      <button id="connectWallet" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Conectar Wallet</button>
+      <button id="disconnectWallet" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition mt-4 hidden">Desconectar Wallet</button>
+      <p id="walletAddress" class="text-center text-xl text-gray-800 mt-6"></p>
+      <p id="reserveA">Reserva A: <span id="reserveA" class="text-center text-xl text-gray-600 mt-4">0</span></p>
+      <p id="reserveB">Reserva B: <span id="reserveB" class="text-center text-xl text-gray-600 mt-4">0</span></p>
+      <div id="authorizationStatus" class="bg-gray-100 p-4 rounded shadow">
+        <h3 class="text-xl font-bold mb-2">Estado de Autorizaciones</h3>
+        <ul id="authorizationList">
+          <!-- Aquí se agregarán dinámicamente las autorizaciones -->
+        </ul>
+      </div>
+      <div class="container">     
+      <header>
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Token A Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Aprobar transferencia -Inicia contrato TokenA-</h2>
+            <form id="approveFormA" class="mt-4">
+              <input type="text" id="approveSpenderA" placeholder="Dirección autorizada" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+              <input type="number" id="approveAmountA" placeholder="Cantidad autorizada" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+              <button type="submit" id="deploytokenA" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Aprobar</button>
+            </form>
+            <p id="approveResultA" class="text-center text-xl text-gray-800 mt-6"></p>
+            <p id="approveError" class="text-center text-red-500 mt-6"></p>
+          </section>
+
+         <section>
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Consultar saldo</h2>
+            <form id="balanceForm" class="mt-4">
+                <input type="text" id="addressBalance" placeholder="Dirección de consulta" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Consultar</button>
+            </form>
+            <p id="balanceResult" class="text-center text-xl text-gray-600 mt-6"></p>
+        </section> 
+
+        <section>
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Transferir Token A</h2>
+          <form id="transferTokenAForm" class="mt-4">
+            <input type="text" id="recipientA" placeholder="Dirección del Contrato DEX" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <input type="number" id="amountA" placeholder="Cantidad de Token A a transferir" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Transferir Token A</button>
+          </form>
+          <p id="transferAResult" class="text-center text-xl text-gray-800 mt-6"></p>
+        </section>
+                
+        <section>
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Autorizaciones Activas</h2>
+          <div id="authorizations" class="mt-4 p-4 border border-gray-300 rounded-md bg-gray-100">
+            <!-- Aquí se mostrarán las autorizaciones -->
+          </div>
+        </section>
+
+        <section>
+            <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Transferir en nombre de otra dirección</h2>
+            <form id="transferFromFormA" class="mt-4">
+                <input type="text" id="fromAddressA" placeholder="Dirección del emisor" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <input type="text" id="toAddressA" placeholder="Dirección de destino" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <input type="number" id="transferFromAmountA" placeholder="Cantidad a transferir" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Transferir</button>
+            </form>
+            <p id="transferFromResult" class="text-center text-xl text-gray-600 mt-6"></p>
+        </section>
+    </main>
+  </div>
+    <div class="container"> 
+    <header>
+        <h1 class="text-4xl font-bold text-center text-gray-600 mb-6">Token B Dashboard</h1>
+    </header>
+    <main>
+        <section>
+            <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Aprobar transferencia -Inicia contrato TokenB-</h2>
+            <form id="approveFormB" class="mt-4">
+                <input type="text" id="approveSpenderB" placeholder="Dirección autorizada" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <input type="number" id="approveAmountB" placeholder="Cantidad autorizada" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <button type="submit" id="deploytokenB" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Aprobar</button>
+            </form>
+            <p id="approveResultB" class="text-center text-xl text-gray-600 mt-6"></p>
+        </section>
+
+        <section>
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Consultar saldo</h2>
+            <form id="balanceForm" class="mt-4">
+                <input type="text" id="addressBalance" placeholder="Dirección de consulta" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Consultar</button>
+            </form>
+            <p id="balanceResult" class="text-center text-xl text-gray-600 mt-4"></p>
+        </section> 
+
+        <section>
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Transferir Token B</h2>
+          <form id="transferTokenBForm" class="mt-4">
+            <input type="text" id="recipientB" placeholder="Dirección del Contrato DEX" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <input type="number" id="amountB" placeholder="Cantidad de Token B a transferir" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Transferir Token B</button>
+          </form>
+          <p id="transferBResult" class="text-center text-xl text-gray-600 mt-6"></p>
+        </section>
+
+        <section>
+            <h2 class="text-4xl font-bold text-center text-gray-600 mb-6">Transferir en nombre de otra dirección</h2>
+            <form id="transferFromFormB" class="mt-4">
+                <input type="text" id="fromAddressB" placeholder="Dirección del emisor" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <input type="text" id="toAddressB" placeholder="Dirección de destino" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <input type="number" id="transferFromAmountB" placeholder="Cantidad a transferir" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Transferir</button>
+            </form>
+            <p id="transferFromResultB" class="text-center text-xl text-gray-600 mt-4"></p>
+        </section>
+    </main>
+  </div>
+    <div class="container">
+        <h1 class="text-4xl font-bold text-center text-gray-600 mb-4">SimpleDEX Interface</h1>
+    
+        <!-- Configuración de SimpleDEX -->
+  <h2 class="text-2xl font-semibold text-gray-600 mb-4">Configurar SimpleDEX -Inicia contrato simpleDEX-</h2>
+  <form id="setupSimpleDEXForm">
+    <label for="tokenAAddress" class="block text-gray-600 mt-4">Dirección TokenA:</label>
+    <input type="text" id="tokenAAddress" value="0xbbbdec7784e51c80a6b86e80f6e8f7a313460906" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+    <br>
+    <label for="tokenBAddress" class="block text-gray-600 mt-4">Dirección TokenB:</label>
+    <input type="text" id="tokenBAddress" value="0xcafca52de7bcb96ff0b0995af6532e774ab2f6e1" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+    <br>
+    <button type="submit" id="deploysimpleDex" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Configurar SimpleDEX</button>
+  </form>
+
+        <!-- Display Reserves -->
+        <div class="reserves">
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-4">Current Reserves</h2>
+          <p>TokenA Reserve: <span id="reserveA" class="text-center text-xl text-gray-600 mt-4">Loading...</span></p>
+          <p>TokenB Reserve: <span id="reserveB" class="text-center text-xl text-gray-600 mt-4">Loading...</span></p>
         </div>
-        <p id="status" class="text-center text-gray-600 mt-4">Estado: Desconectado</p>
+    
+        <!-- Add Liquidity -->
+        <div class="form-section">
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-4">Add Liquidity</h2>
+          <form id="addLiquidityForm" class="mt-4">
+            <label for="amountA" class="block text-gray-700 mt-4">Amount of TokenA:</label>
+            <input type="number" id="amountA" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <label for="amountB" class="block text-gray-700 mt-4">Amount of TokenB:</label>
+            <input type="number" id="amountB" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-400 text-white px-6 py-2 rounded-md hover:bg-blue-400 transition mt-4">Add Liquidity</button>
+          </form>
+        </div>
+    
+        <!-- Remove Liquidity -->
+        <div class="form-section">
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-4">Remove Liquidity</h2>
+          <form id="removeLiquidityForm" class="mt-4">
+            <label for="removeAmountA" class="block text-gray-600 mt-4">Amount of TokenA:</label>
+            <input type="number" id="removeAmountA"  class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <label for="removeAmountB" class="block text-gray-700 mt-4">Amount of TokenB:</label>
+            <input type="number" id="removeAmountB" class="w-full mt-2 p-2 border border-gray-300 rounded-md focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-400 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Remove Liquidity</button>
+          </form>
+        </div>
+    
+        <!-- SWAP -->
+        <div class="form-section">
+          <h2 class="text-4xl font-bold text-center text-gray-600 mb-4">Swap Tokens</h2>
+          <form id="swapForm">
+            <!-- Campo para ingresar la cantidad -->
+            <label for="swapAmount" class="block text-gray-600 font-medium mb-2">Cantidad a intercambiar:</label>
+            <input 
+              type="number" 
+              id="swapAmount" 
+              class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+              placeholder="Ingresa la cantidad" 
+              required 
+            />
+        
+            <!-- Selector de dirección del intercambio -->
+            <label for="swapDirection" class="block text-gray-600 font-medium mt-4 mb-2">Selecciona la dirección del swap:</label>
+            <select 
+              id="swapDirection" 
+              class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300" 
+              required
+            >
+              <option value="swapAforB">Token A → Token B</option>
+              <option value="swapBforA">Token B → Token A</option>
+            </select>
+        
+            <!-- Botón para enviar el formulario -->
+            <button 
+              type="submit" 
+              class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4 w-full"
+            >
+              Realizar Swap
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/lib.commonjs/index.min.js"></script>
-    <script src="./js/interaction.cjs" type="module"></script>
+  </div>
+</div>   
+    <footer>
+        <p>© 2024 Front SimpleDex</p>
+    </footer>
+   <!--  <script src="scriptC.js" type="module"></script> -->
+    <script src="scriptConectDisc.js" type="module"></script>
+    <script src="scriptTokenA.js" type="module" defer></script>
+    <script src="scriptTokenB.js" type="module" defer></script>
+    <script src="scriptSimpleDEX_corr.js" type="module" defer></script>
 </body>
 </html>
-
