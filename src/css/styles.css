@@ -13,4 +13,8 @@
   #authorizationStatus li {
     margin-bottom: 0.5rem;
   }
-  
+  #box{
+    border: solid 1px black;
+    background-color: gray;
+    margin: 20vw;
+  }

@@ -1,5 +1,5 @@
-import { loadABI, connectWallet, updateAuthorizationStatus, ethers } from './scriptConectDisc.js';
-import { updateReserves } from './scriptSimpleDEX_corr.js';
+import { connectWallet, updateAuthorizationStatus, ethers } from './scriptConectDisc.cjs';
+import { updateReserves } from './scriptSimpleDEX_corr.cjs';
 
 let tokenBContract;
 let tokenAContract;
@@ -21,6 +21,9 @@ async function initializeTokenB() {
 
     tokenBContract = new ethers.Contract(tokenBAddress, tokenBABI, signer);
     isTokenBInitialized = true;
+    //Agregado para prueba
+    const allowance = await tokenBContract.allowance(fromAddress, await tokenBContract.signer.getAddress());
+    if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");
 
     console.log("TokenB inicializado correctamente:", tokenBContract);
   } catch (error) {
@@ -53,7 +56,7 @@ async function handleApproveB(tokenBContract, spender, amount, resultElement) {
   try {
     if (!spender || !amount) throw new Error('Por favor, completa todos los campos.');
     if (!ethers.isAddress(spender)) throw new Error("Dirección no válida para 'spender'.");
-    if (!tokenBContract) throw new Error("El contrato de TokenB no está inicializado.");
+    if (!tokenBContract) console.log("Inicializando el contrato.");
 
     // Conversión de cantidad a formato Wei
     const parsedAmount = ethers.parseUnits(amount, 18);
@@ -80,7 +83,7 @@ async function handleApproveB(tokenBContract, spender, amount, resultElement) {
 };
 
 document.getElementById('transferFromFormB').addEventListener('submit', async (event) => {
-  event.preventDefault();
+    event.preventDefault();
   const fromAddress = document.getElementById('fromAddressB').value.trim();
   const toAddress = document.getElementById('toAddressB').value.trim();
   const amount = document.getElementById('transferFromAmountB').value.trim();
@@ -132,8 +135,23 @@ if (savedAddress) {
 
 window.addEventListener("load", async () => {
   try {
+    if (typeof window.ethereum === "undefined") {
+      console.error("MetaMask no está instalado.");
+      return;
+    }
+
     // Asociar eventos
     document.getElementById("connectWallet").addEventListener("click", connectWallet);
+    document.getElementById("deploytokenB").addEventListener("click", initializeTokenB);
+
+    document.getElementById("approveFormB").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const spender = document.getElementById("approveSpenderB").value.trim();
+      const amount = document.getElementById("approveAmountB").value.trim();
+      const resultElement = document.getElementById("approveResultB");
+      await handleApproveA(tokenBContract, spender, amount, resultElement);
+    });
+
     document.getElementById("transferFromFormB").addEventListener("submit", async (event) => {
       event.preventDefault();
       const fromAddress = document.getElementById("fromAddressB").value.trim();
@@ -143,19 +161,19 @@ window.addEventListener("load", async () => {
       await handleTransfer(tokenBContract, fromAddress, toAddress, amount, resultElement);
     });
 
+    // Verificar conexión inicial
     await checkWalletConnection();
+    await updateReserves();
     await updateAuthorizationStatus();
   } catch (error) {
     console.error("Error al inicializar la aplicación:", error);
   }
 });
 
-// Actualizar reservas solo si hay cantidad de TokenA
-let amount;
-if (amount && amount !== '0') {
-  try {
-    await updateReserves();
-  } catch (error) {
-    console.log('No hay reservas todavía');
-  }
-};
+
+// Actualizar reservas solo si hay cantidad de TokenAo cambios swap AforB o envio de toquens a otras billeteras..
+//reservasA amountA tokenA
+//reservasB amountB tokenB
+//boton ver reservas de cada token una vez inicializado simpleDEX y otro boton para ver los cambios de cantidad de token al hacer sapAforB
+//incluyendo el costo de la transaccion y los datos informados en simpleDEXContract para las trasacciones. (costos)
+

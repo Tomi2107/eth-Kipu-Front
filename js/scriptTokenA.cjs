@@ -1,5 +1,6 @@
-import { connectWallet, loadABI, updateAuthorizationStatus, ethers } from './scriptConectDisc.js';
-import { updateReserves } from './scriptSimpleDEX_corr.js';
+import { connectWallet, updateAuthorizationStatus, ethers } from './scriptConectDisc.cjs';
+import { updateReserves } from './scriptSimpleDEX_corr.cjs';
+//require('dotenv').config();
 
 let tokenAContract;
 let isTokenAInitialized = false;
@@ -10,7 +11,6 @@ async function checkWalletConnection() {
     alert("MetaMask no está instalado.");
     return;
   }
-
   const savedAddress = localStorage.getItem("walletAddress");
   if (savedAddress) {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -18,7 +18,7 @@ async function checkWalletConnection() {
     document.getElementById(
       "walletAddress"
     ).innerText = `Dirección: ${savedAddress}`;
-    await loadABI();
+    await InitializeTokenA();
     await updateAuthorizationStatus();
   }
 };
@@ -29,7 +29,6 @@ async function initializeTokenA() {
     console.log("TokenA ya está inicializado.");
     return;
   }
-
   try {
     const tokenAAddress = "0xbbbdec7784e51c80a6b86e80f6e8f7a313460906"; // Reemplaza con la dirección real
     const tokenAABI = await fetch('https://gist.githubusercontent.com/Tomi2107/4dd8248426b0f2b79a369eddbab98d55/raw/492f918c85edf2a30b82faeaaa506650c300fd69/.json').then(res => res.json());
@@ -47,14 +46,42 @@ async function initializeTokenA() {
   }
 };
 
+document.getElementById("checkAllowanceButton").addEventListener("click", async () => {
+  const owner = document.getElementById("ownerAddress").value;
+  const spender = document.getElementById("spenderAddress").value;
+  const token = document.getElementById("tokenAddress").value;
+  const resultElement = document.getElementById("allowanceResult");
+
+  if (!owner || !spender || !token) {
+    resultElement.innerText = "Por favor llena todos los campos.";
+    return;
+  }
+
+  try {
+    const tokenAABI = [
+      "function allowance(address owner, address spender) view returns (uint256)"
+    ];
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const contract = new ethers.Contract(token, tokenAABI, provider);
+    const allowance = await contract.allowance(owner, spender);
+
+    resultElement.innerText = `Allowance: ${ethers.formatUnits(allowance, 18)} tokens`;
+  } catch (error) {
+    console.error("Error al consultar el allowance:", error);
+    resultElement.innerText = "Error al consultar allowance. Revisa la consola.";
+  }
+});
 // Manejar aprobación de tokens
 async function handleApproveA(tokenAContract, spender, amount, resultElement) {
   try {
     if (!spender || !amount) throw new Error('Por favor, completa todos los campos.');
     if (!ethers.isAddress(spender)) throw new Error("Dirección no válida para 'spender'.");
-    if (!tokenAContract) throw new Error("El contrato no está inicializado.");
+    if (!tokenAContract) throw console.log("Inicializando el contrato.");
 
-    // Conversión de cantidad a formato Wei
+   // const allowance = await tokenContract.allowance(fromAddress, await tokenContract.signer.getAddress());
+   //if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");
+  
+   // Conversión de cantidad a formato Wei
     const parsedAmount = ethers.parseUnits(amount, 18);
 
     // Solicitar aprobación
@@ -76,6 +103,7 @@ async function handleApproveA(tokenAContract, spender, amount, resultElement) {
   }
 };
 
+
 // Manejar transferencia de tokens
 async function handleTransfer(tokenContract, fromAddress, toAddress, amount, resultElement) {
   try {
@@ -85,7 +113,7 @@ async function handleTransfer(tokenContract, fromAddress, toAddress, amount, res
 
     const amountInWei = ethers.parseUnits(amount, 18);
 
-    const allowance = await tokenContract.allowance(fromAddress, await tokenContract.signer.getAddress());
+    const allowance = await tokenAContract.allowance(fromAddress, await tokenAContract.signer.getAddress());
     if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");
 
     const tx = await tokenContract.transferFrom(fromAddress, toAddress, amountInWei);

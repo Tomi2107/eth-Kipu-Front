@@ -7,7 +7,6 @@ const simpleDEXAddress = "0x8388c1d78ec692cc4555f9367ff42f17084e79a3";
 let signer, address, tokenAContract, tokenBContract, simpleDEXContract;
 let provider;
 
-// Proveedor RPC de Alchemy
 const providerURL = "https://scroll-sepolia.g.alchemy.com/v2/-Om5pWvbQTGynmGJHrCUkiXa-ES1ZVuW";
 
 /**
@@ -30,7 +29,7 @@ async function connectWallet() {
             console.log("Wallet conectada:", address);
 
             // Inicializa contratos una vez conectada la wallet
-            await initializeContracts();
+           // await initializeContracts();
 
         } catch (error) {
             console.error("Error al conectar la wallet:", error);
@@ -38,19 +37,6 @@ async function connectWallet() {
     } else {
         alert('Por favor, instala MetaMask.');
     }
-};
-
-/**
- * Desconecta la wallet y limpia el estado relacionado.
- */
-async function disconnectWallet() {
-    console.log('Desconectando wallet...');
-    provider = signer = address = undefined;
-    localStorage.removeItem('walletAddress');
-
-    document.getElementById('walletAddress').innerText = "Desconectado";
-    document.getElementById('connectWallet').style.display = 'inline';
-    document.getElementById('disconnectWallet').style.display = 'none';
 };
 
 /**
@@ -68,47 +54,53 @@ async function loadABI() {
         console.error('Error al cargar los ABIs:', error);
     }
 };
-
 /**
- * Inicializa los contratos utilizando los ABIs cargados.
+ * Desconecta la wallet y limpia el estado relacionado.
  */
-async function initializeContracts() {
-    try {
-        const { tokenAABI, tokenBABI, simpleDEXABI } = await loadABI();
-
-        tokenAContract = new ethers.Contract(tokenAAddress, tokenAABI, signer);
-        tokenBContract = new ethers.Contract(tokenBAddress, tokenBABI, signer);
-        simpleDEXContract = new ethers.Contract(simpleDEXAddress, simpleDEXABI, signer);
-
-        console.log("Contratos inicializados correctamente.");
-    } catch (error) {
-        console.error("Error al inicializar contratos:", error);
-    }
-};
+document.addEventListener('DOMContentLoaded', () => {
+    const disconnectButton = document.getElementById('disconnectWallet');
+    disconnectButton.addEventListener('click', () => {
+        console.log('Desconectando wallet...');
+        document.getElementById('walletAddress').innerText = "Desconectado";
+        document.getElementById('connectWallet').style.display = 'inline';
+        document.getElementById('disconnectWallet').style.display = 'none';
+        console.log('wallet desconectada');
+    });
+});
 
 /**
  * Carga las reservas del contrato SimpleDEX solo después de interacciones relevantes.
  */
 async function loadReserves() {
     try {
-        if (!simpleDEXContract) throw new Error("Contrato SimpleDEX no inicializado.");
+        // Establece valores iniciales mientras se cargan los datos
+        document.getElementById("reserveA").innerText = "0.0";
+        document.getElementById("reserveB").innerText = "0.0";
 
-        const reserveA = await simpleDEXContract.reserveA();
-        const reserveB = await simpleDEXContract.reserveB();
+        // Obtén las reservas desde los contratos
+        const reserveA = await tokenAContract.balanceOf(tokenAAddress);
+        const reserveB = await tokenBContract.balanceOf(tokenBAddress);
 
-        document.getElementById('reserveA').innerText = `Reserva A: ${ethers.formatUnits(reserveA, 18)}`;
-        document.getElementById('reserveB').innerText = `Reserva B: ${ethers.formatUnits(reserveB, 18)}`;
+        // Actualiza los elementos HTML con los valores obtenidos
+        document.getElementById("reserveA").innerText = ethers.formatUnits(reserveA, 18);
+        document.getElementById("reserveB").innerText = ethers.formatUnits(reserveB, 18);
+    } catch {
+        console.log("contratos no incilizados");
 
-        console.log(`Reservas cargadas: A - ${reserveA.toString()}, B - ${reserveB.toString()}`);
-    } catch (error) {
-        console.error("Error al cargar reservas:", error);
+      
     }
 };
+
+// Llama a la función al cargar la página
+window.addEventListener("load", loadReserves);
+
+
 
 /**
  * Actualiza el estado de autorizaciones para los tokens.
  */
 async function updateAuthorizationStatus() {
+    console.log('Autorizacion no cargada todavia');
     try {
       // Obtener referencias a los elementos
       const spenderAElement = document.getElementById("approveSpenderA");
@@ -135,29 +127,13 @@ async function updateAuthorizationStatus() {
             <p><strong>Token B:</strong> ${ethers.formatUnits(authorizedForB, 18)} autorizado.</p>
         `;
     }}catch{
-        console.log('updateAutorization L138');
+        console.log('updateAutorization L118');
     }
 };  
 
 // Llamar a la función en algún punto del flujo
 updateAuthorizationStatus();
   
-// async function updateAuthorizationStatus() {
-//     try {
-//         if (!tokenAContract || !tokenBContract) throw new Error("Contratos no inicializados.");
-
-//         const authorizedForA = await tokenAContract.allowance(address, simpleDEXAddress);
-//         const authorizedForB = await tokenBContract.allowance(address, simpleDEXAddress);
-
-//         document.getElementById("authorizations").innerHTML = `
-//             <p><strong>Token A:</strong> ${ethers.formatUnits(authorizedForA, 18)} autorizado.</p>
-//             <p><strong>Token B:</strong> ${ethers.formatUnits(authorizedForB, 18)} autorizado.</p>
-//         `;
-//     } catch (error) {
-//         console.error("Error al cargar autorizaciones:", error);
-//     }
-// };
-
 // Eventos de la página
 window.addEventListener('load', async () => {
     const storedAddress = localStorage.getItem('walletAddress');
@@ -166,7 +142,8 @@ window.addEventListener('load', async () => {
         document.getElementById('walletAddress').innerText = `Dirección: ${address}`;
         document.getElementById('connectWallet').style.display = 'none';
         document.getElementById('disconnectWallet').style.display = 'block';
-        await initializeContracts();
+        await loadABI();
+      //  await initializeContracts();
     } else {
         document.getElementById('connectWallet').style.display = 'inline';
         document.getElementById('disconnectWallet').style.display = 'none';
@@ -176,10 +153,11 @@ window.addEventListener('load', async () => {
 // Exporta las funciones necesarias para otros scripts
 export {
     connectWallet,
-    disconnectWallet,
     loadABI,
-    initializeContracts,
+    // initializeContracts,
     loadReserves,
     updateAuthorizationStatus,
     ethers
 };
+
+

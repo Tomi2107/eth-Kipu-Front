@@ -1,12 +1,13 @@
-import { initializeContracts, ethers } from './scriptConectDisc.js';
+import { ethers, loadReserves, loadABI } from './scriptConectDisc.cjs';
+//require('dotenv').config();
 
 let signer;
-let simpleDEXContract = false;
+let simpleDEXContract = true;
 let tokenAContract = true;
-let tokenBContract = false;
+let tokenBContract = true;
 let isSimpleDEXInitialized = false;
 
-initializeContracts();
+//initializeContracts();
 
 async function initializeSimpleDEX() {
   try {
@@ -27,10 +28,11 @@ async function initializeSimpleDEX() {
     console.error("Error inicializando SimpleDEX:", error);
     alert("Error inicializando SimpleDEX.");
   }
-}
+};
 
 document.getElementById("deploysimpleDex").addEventListener("click", async () => {
   await initializeSimpleDEX();
+  //await loadReserves();
 });
 
 // Configurar SimpleDEX con tokens A y B
@@ -41,6 +43,8 @@ document.getElementById("setupSimpleDEXForm").addEventListener("submit", async (
       alert("SimpleDEX no está inicializado.");
       return;
     }
+    //const allowance = await tokenContract.allowance(fromAddress, await tokenContract.signer.getAddress());
+    //if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");
     await simpleDEXContract.initialize(tokenAContract.address, tokenBContract.address);
     alert("SimpleDEX configurado correctamente.");
   } catch (error) {
@@ -51,19 +55,40 @@ document.getElementById("setupSimpleDEXForm").addEventListener("submit", async (
 
 // Actualizar reservas de tokens
 async function updateReserves() {
-  if (!tokenAContract || !tokenBContract || !simpleDEXContract) return;
-
   try {
-    const reserveA = await simpleDEXContract.reserveA();
-    const reserveB = await simpleDEXContract.reserveB();
+      // Inicializa con valores predeterminados
+      document.getElementById("reserveA").innerText = "0.0 A";
+      document.getElementById("reserveB").innerText = "0.0 B";
 
-    document.getElementById('reserveA').innerText = ethers.formatUnits(reserveA, 18);
-    document.getElementById('reserveB').innerText = ethers.formatUnits(reserveB, 18);
+      // Verifica que los contratos estén definidos
+      if (!tokenAContract || !tokenBContract || !simpleDEXContract) {
+          console.log("Contratos no inicializados.");
+          return;
+      }
+
+      // Verifica que los métodos balanceOf existan
+      if (typeof tokenAContract.balanceOf !== "function" || typeof tokenBContract.balanceOf !== "function") {
+          console.log("Método balanceOf no disponible en los contratos.");
+          return;
+      }
+
+      // Obtén las reservas actualizadas
+      const reserveA = await tokenAContract.balanceOf(simpleDEXContract.address);
+      const reserveB = await tokenBContract.balanceOf(simpleDEXContract.address);
+
+      // Actualiza los elementos HTML con los valores actuales
+      document.getElementById("reserveA").innerText = ethers.formatUnits(reserveA, 18);
+      document.getElementById("reserveB").innerText = ethers.formatUnits(reserveB, 18);
   } catch (error) {
-    console.error("Error al actualizar reservas:", error);
-    alert("No se pudo obtener las reservas.");
+      console.error("Error al actualizar las reservas:", error);
   }
-}
+};
+
+// Vincula loadReserves al evento de carga de la página
+window.addEventListener("load", loadReserves);
+
+// Opcional: Llama a updateReserves periódicamente o después de eventos específicos
+document.getElementById("updateButton").addEventListener("click", updateReserves);
 
 // Agregar liquidez
 document.getElementById('addLiquidityForm').addEventListener('submit', async (e) => {
@@ -76,6 +101,8 @@ document.getElementById('addLiquidityForm').addEventListener('submit', async (e)
       ethers.parseUnits(amountA, 18),
       ethers.parseUnits(amountB, 18)
     );
+   // const allowance = await tokenContract.allowance(fromAddress, await tokenContract.signer.getAddress());
+   // if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");//
     await tx.wait();
     alert("Liquidez añadida con éxito.");
     await updateReserves();
@@ -92,6 +119,8 @@ document.getElementById('removeLiquidityForm').addEventListener('submit', async 
   const amountB = document.getElementById('removeamountB').value;
 
   try {
+    //  const allowance = await tokenContract.allowance(fromAddress, await tokenContract.signer.getAddress());
+    // if (allowance.lt(amountInWei)) throw new Error("Saldo insuficiente aprobado.");
     const tx = await simpleDEXContract.removeLiquidity(
       ethers.parseUnits(amountA, 18),
       ethers.parseUnits(amountB, 18)
@@ -154,7 +183,7 @@ async function checkWalletConnection() {
     console.error("Error al conectar la cartera:", error);
     alert("Error al conectar la cartera.");
   }
-}
+};
 
 const savedAddress = localStorage.getItem("walletAddress");
 if (savedAddress) {
@@ -169,11 +198,18 @@ if (savedAddress) {
   window.addEventListener('load', async () => {
     try {
       await checkWalletConnection();
-      await initializeContracts();
+      await initializeSimpleDEX();
+      await loadABI();
     } catch (error) {
       console.error("Error al inicializar:", error);
     }
   });
-}
+};
 
+
+//que funciones llevan allowance ? iniciali<eTokenA y B, load y update reserves, los form de trasnferencia...
+
+/*haria falta agregar un boton que permita ver cuantos token de A y B tengo al iniciar el simpledex y que varie con los trsafer y el swap..
+*falta la funcion getPrice(), y un boton que devuelva el precio de los tokens al principio y a medida que se usan los trasf y swap..
+*/
 export { updateReserves }; // También exportamos updateReserves para que pueda ser utilizada en otros scripts.

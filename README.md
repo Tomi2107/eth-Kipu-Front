@@ -57,5 +57,4 @@ creamos el codigo necesario en App.ts
 agregamos estilos
 npm run dev// para correr de manera local -->
 
-Max Tokenization Length
 

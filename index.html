@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Front SimpleDEx</title>
-    <link rel="stylesheet" href="./styles.css" type="text/html">
+    <link rel="stylesheet" href="./src/styles.css" type="text/html">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
-<div>
+<div class="container" id="box">
   <div class="container mx-auto p-6">
     <div class="container">  
     <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">SimpleDEX</h1>
@@ -40,6 +40,10 @@
             <p id="approveResultA" class="text-center text-xl text-gray-800 mt-6"></p>
             <p id="approveError" class="text-center text-red-500 mt-6"></p>
           </section>
+          
+          <button id="checkAllowanceButton" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Check Allowance</button>
+          
+          <button type="submit" id="updateButton" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Cantidad de tokens</button>      
 
          <section>
             <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Consultar saldo</h2>
@@ -140,12 +144,7 @@
     <button type="submit" id="deploysimpleDex" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Configurar SimpleDEX</button>
   </form>
 
-        <!-- Display Reserves -->
-        <div class="reserves">
-          <h2 class="text-4xl font-bold text-center text-gray-600 mb-4">Current Reserves</h2>
-          <p>TokenA Reserve: <span id="reserveA" class="text-center text-xl text-gray-600 mt-4">Loading...</span></p>
-          <p>TokenB Reserve: <span id="reserveB" class="text-center text-xl text-gray-600 mt-4">Loading...</span></p>
-        </div>
+  <button type="submit" id="updateButton" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition mt-4">Cantidad de tokens</button>
     
         <!-- Add Liquidity -->
         <div class="form-section">
@@ -212,10 +211,10 @@
     <footer>
         <p>© 2024 Front SimpleDex</p>
     </footer>
-   <!--  <script src="scriptC.js" type="module"></script> -->
-    <script src="scriptConectDisc.js" type="module"></script>
-    <script src="scriptTokenA.js" type="module" defer></script>
-    <script src="scriptTokenB.js" type="module" defer></script>
-    <script src="scriptSimpleDEX_corr.js" type="module" defer></script>
+    <!-- <script src="interaction.csj" type="module"></script> -->
+    <script src="./js/scriptConectDisc.cjs" type="module"></script>
+    <script src="./js/scriptTokenA.cjs" type="module" defer></script>
+    <script src="./js/scriptTokenB.cjs" type="module" defer></script>
+    <script src="./js/scriptSimpleDEX_corr.cjs" type="module" defer></script>
 </body>
 </html>
