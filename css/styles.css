@@ -1,0 +1,20 @@
+#authorizationStatus {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  #authorizationStatus ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  #authorizationStatus li {
+    margin-bottom: 0.5rem;
+  }
+  #box{
+    border: solid 1px black;
+    background-color: gray;
+    margin: 20vw;
+  }
