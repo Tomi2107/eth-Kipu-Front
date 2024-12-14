@@ -1,24 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ethers } from "ethers";
 import TokenForm from "./components/TokenForm";
 import SimpleDexForm from "./components/SimpleDexForm";
+
+import { approveTokens, checkBalance } from "./../src/utils/tokenActions"; 
+import { swapTokens } from "./../src/utils/DexActions"
+import {config} from "./../src/utils/config";
+import { checkWalletConnection } from "./../src/utils/checkWalletConnection";
 
 import './../css/styles.css'
 import './../css/index.css'
 
 const App: React.FC = () => {
-  // useEffect(() => {
-  //     // Ejecutar la conexión del wallet al cargar la aplicación
-  //     checkWalletConnection().then(() => {
-  //         console.log('Wallet conectada.');
-  //     }).catch((error: Error) => {
-  //         console.error('Error al conectar el wallet:', error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    // Ejecutar la conexión del wallet al cargar la aplicación
+    checkWalletConnection()
+      .then((account: any) => {
+        console.log("Wallet conectada. Cuenta:", account);
+      })
+      .catch((error: Error) => {
+        console.error("Error al conectar el wallet:", error);
+      });
+  }, []);
   const [connected, setConnected] = useState(false);
   const [account, setAccount] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false); // Estado para manejar la espera
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);  
 
   const handleConnectWallet = async () => {
     setIsConnecting(true); // Activar la espera
@@ -44,57 +51,91 @@ const App: React.FC = () => {
     setAccount(null);
   };
 
-  const handleApprove = async (spender: string, amount: string) => {
-    console.log(`Aprobando ${amount} tokens para ${spender}`);
-    // Lógica para aprobar tokens (interacción con el contrato).
-  };
-  
-  const handleCheckBalance = async (address: string): Promise<string> => {
-    console.log(`Consultando balance de la dirección ${address}`);
-    // Lógica para consultar balance (interacción con el contrato).
-    return "1000"; // Ejemplo de saldo
-  };
-  
-  const handleTransfer = async (recipient: string, amount: string) => {
-    console.log(`Transfiriendo ${amount} tokens a ${recipient}`);
-    // Lógica para transferir tokens (interacción con el contrato).
-  };
-  
-  const handleTransferFrom = async (from: string, to: string, amount: string) => {
-    console.log(`Transfiriendo ${amount} tokens desde ${from} hacia ${to}`);
-    // Lógica para transferir tokens desde una dirección (interacción con el contrato).
+  const handleApprove = async () => {
+    try {
+      await approveTokens(config.tokenAAddress, config.simpleDEXAddress, "1000");
+      console.log("Tokens aprobados exitosamente.");
+    } catch (error) {
+      console.error("Error al aprobar tokens:", error);
+    }
   };
 
-   const handleDexDeploy = (tokenA: string, tokenB: string) => {
-     console.log("SimpleDEX Deployment Data:", { tokenA, tokenB });
-     // Aquí puedes agregar la lógica para desplegar el contrato de SimpleDEX
-   };
-  
-  const handleAddLiquidity = (amountA: number, amountB: number) => {
-    console.log(`Adding liquidity: ${amountA} TokenA and ${amountB} TokenB.`);
-    // Lógica para agregar liquidez.
+  const handleCheckBalance = async () => {
+    try {
+      const balance = await checkBalance(config.tokenAAddress, account!);
+      console.log("Balance:", balance);
+    } catch (error) {
+      console.error("Error al consultar balance:", error);
+    }
   };
-  
-  const handleRemoveLiquidity = (amountA: number, amountB: number) => {
-    console.log(`Removing liquidity: ${amountA} TokenA and ${amountB} TokenB.`);
-    // Lógica para remover liquidez.
+
+  const handleTransfer = async (recipient: string, amount: string) => {
+    try {
+      console.log(`Transfiriendo ${amount} tokens a ${recipient}`);
+      // Aquí agregas la lógica de transferencia con interacción al contrato
+    } catch (error) {
+      console.error("Error al transferir tokens:", error);
+    }
   };
-  
-  const handleSwap = (amount: number, direction: string) => {
-    console.log(`Swapping ${amount} tokens in direction: ${direction}.`);
-    // Lógica para realizar el swap.
+
+  const handleTransferFrom = async (from: string, to: string, amount: string) => {
+    try {
+      console.log(`Transfiriendo ${amount} tokens desde ${from} hacia ${to}`);
+      // Aquí agregas la lógica de transferencia con interacción al contrato
+    } catch (error) {
+      console.error("Error en transferencia desde otra dirección:", error);
+    }
   };
+
+  const handleDexDeploy = async (tokenA: string, tokenB: string) => {
+    try {
+      console.log("Desplegando SimpleDEX con:", { tokenA, tokenB });
+      // Lógica de despliegue del contrato SimpleDEX
+    } catch (error) {
+      console.error("Error al desplegar SimpleDEX:", error);
+    }
+  };
+
+  const handleAddLiquidity = async (amountA: number, amountB: number) => {
+    try {
+      console.log(`Agregando liquidez: ${amountA} TokenA y ${amountB} TokenB`);
+      // Lógica para agregar liquidez al contrato
+    } catch (error) {
+      console.error("Error al agregar liquidez:", error);
+    }
+  };
+
+  const handleRemoveLiquidity = async (amountA: number, amountB: number) => {
+    try {
+      console.log(`Removiendo liquidez: ${amountA} TokenA y ${amountB} TokenB`);
+      // Lógica para remover liquidez del contrato
+    } catch (error) {
+      console.error("Error al remover liquidez:", error);
+    }
+  };
+
+  const handleSwap = async () => {
+    try {
+      await swapTokens(config.simpleDEXAddress, "10", "AtoB");
+      console.log("Tokens swapeados exitosamente.");
+    } catch (error) {
+      console.error("Error al hacer swap de tokens:", error);
+    }
+  };
+
   return (
     <div className="bg-gray-100 font-sans min-h-screen p-6">
       <div className="container mx-auto">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-6">Intro to Ethers</h1>
+        <h1 className="text-4xl font-bold text-center text-gray-800 mb-6">
+          Intro to Ethers
+        </h1>
 
         <div className="text-center">
           {!connected ? (
             <button
               onClick={handleConnectWallet}
               className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
-              disabled={isConnecting} // Deshabilitar el botón mientras se conecta
+              disabled={isConnecting}
             >
               {isConnecting ? "Buscando billetera..." : "Conectar wallet"}
             </button>
@@ -114,9 +155,7 @@ const App: React.FC = () => {
           </p>
         )}
 
-        {error && (
-          <p className="text-center text-red-500 mt-4">{error}</p>
-        )}
+        {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
         <p className="text-center text-gray-600 mt-4">
           Estado: {connected ? `Conectado: ${account}` : "Desconectado"}
@@ -124,35 +163,42 @@ const App: React.FC = () => {
 
         {connected && (
           <>
-            <h2 className="text-xl font-semibold text-gray-700 mt-8">SimpleDEX Manager</h2>
-            <TokenForm onSubmit={handleApprove}
-            title="token A"
-            approveTitle="Aprobar Tokens"
-            balanceTitle="Consultar Balance"
-            transferTitle="Transferir Tokens"
-            transferFromTitle="Transferencia Desde"
-            onApprove={handleApprove}
-            onCheckBalance={handleCheckBalance}
-            onTransfer={handleTransfer}
-            onTransferFrom={handleTransferFrom}
+            <h2 className="text-xl font-semibold text-gray-700 mt-8">
+              SimpleDEX Manager
+            </h2>
+            <TokenForm
+              title="Token A"
+              approveTitle="Aprobar Tokens"
+              balanceTitle="Consultar Balance"
+              transferTitle="Transferir Tokens"
+              transferFromTitle="Transferencia Desde"
+              onApprove={handleApprove}
+              onCheckBalance={handleCheckBalance}
+              onTransfer={handleTransfer}
+              onTransferFrom={handleTransferFrom}
+              onSubmit={(action) => console.log("Acción realizada:", action)}
+              tokenActions={[]}
+            
             />
-            <TokenForm onSubmit={handleApprove}
-            title="token B"
-            approveTitle="Aprobar Tokens"
-            balanceTitle="Consultar Balance"
-            transferTitle="Transferir Tokens"
-            transferFromTitle="Transferencia Desde" 
-            onApprove={handleApprove}
-            onCheckBalance={handleCheckBalance}
-            onTransfer={handleTransfer}
-            onTransferFrom={handleTransferFrom}
+            <TokenForm
+              title="Token B"
+              approveTitle="Aprobar Tokens"
+              balanceTitle="Consultar Balance"
+              transferTitle="Transferir Tokens"
+              transferFromTitle="Transferencia Desde"
+              onApprove={handleApprove}
+              onCheckBalance={handleCheckBalance}
+              onTransfer={handleTransfer}
+              onTransferFrom={handleTransferFrom}
+              onSubmit={(action) => console.log("Acción realizada:", action)}
+              tokenActions={[]}
             />
-            <SimpleDexForm 
-            onDexDeploy={handleDexDeploy}
-            onAddLiquidity={handleAddLiquidity}
-            onRemoveLiquidity={handleRemoveLiquidity}
-            onSwap={handleSwap}
-             /> 
+            <SimpleDexForm
+              onDexDeploy={handleDexDeploy}
+              onAddLiquidity={handleAddLiquidity}
+              onRemoveLiquidity={handleRemoveLiquidity}
+              onSwap={handleSwap}
+            />
           </>
         )}
       </div>

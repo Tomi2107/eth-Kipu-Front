@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
 
 interface SimpleDexFormProps {
   onDexDeploy: (tokenA: string, tokenB: string) => void;
@@ -15,25 +14,12 @@ const SimpleDexForm: React.FC<SimpleDexFormProps> = ({
   onSwap,
 }) => {
 
-//const simpleDEX = "0x8388c1d78ec692cc4555f9367ff42f17084e79a3";
-
-//let signer, address, tokenAContract, tokenBContract, simpleDEXContract;
-//let provider;
-
-//const providerURL = "https://scroll-sepolia.g.alchemy.com/v2/-Om5pWvbQTGynmGJHrCUkiXa-ES1ZVuW";
-
   const tokenA = "0xbbbdec7784e51c80a6b86e80f6e8f7a313460906";
   const tokenB ="0xcafca52de7bcb96ff0b0995af6532e774ab2f6e1";    
   const [amountA, setAmountA] = useState<number>(0);
   const [amountB, setAmountB] = useState<number>(0);
   const [swapAmount, setSwapAmount] = useState<number>(0);
   const [swapDirection, setSwapDirection] = useState<string>("swapAforB");
-
-  //const alchemyUrl = '<https://eth-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_PROJECT_ID>';
-
-// Crear un proveedor usando la URL de Alchemy
-  //const provider = new ethers.JsonRpcProvider(alchemyUrl);
-
 
   const handleDexDeploy = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +91,7 @@ const SimpleDexForm: React.FC<SimpleDexFormProps> = ({
           />
           <label htmlFor="CanTokB" className="block text-gray-700 mt-4">Cantidad TokenB:</label>
           <input
-             id="CanTokB"
+            id="CanTokB"
             type="number"
             value={amountB}
             onChange={(e) => setAmountB(Number(e.target.value))}

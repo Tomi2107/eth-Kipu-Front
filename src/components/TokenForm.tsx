@@ -1,6 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ethers } from "ethers";
 
+interface TokenAction {
+  action: string; // Tipo de acción: "approve", "transfer", etc.
+  spender?: string;
+  recipient?: string;
+  from?: string;
+  to?: string;
+  amount?: string;
+  address?: string;
+};
 
 interface TokenFormProps {
   title: string;
@@ -9,10 +18,11 @@ interface TokenFormProps {
   transferTitle: string;
   transferFromTitle: string;
   onApprove: (spender: string, amount: string) => Promise<void>;
-  onCheckBalance: (address: string) => Promise<string>;
+  onCheckBalance: (address: string) => Promise<void>;
   onTransfer: (recipient: string, amount: string) => Promise<void>;
   onTransferFrom: (from: string, to: string, amount: string) => Promise<void>;
-  onSubmit: (...args: any[]) => void; // Permitir múltiples argumentos
+  onSubmit: (tokenActions: TokenAction) => void; // Permitir múltiples argumentos
+  tokenActions: TokenAction[];
 };
 
 const TokenForm: React.FC<TokenFormProps> = ({
@@ -254,4 +264,5 @@ const TokenForm: React.FC<TokenFormProps> = ({
 )};
 
 export default TokenForm;
-    
+
+
